@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:14.5-alpine3.16
+    restart: always
+    environment:
+      - POSTGRES_USER=rafi
+      - POSTGRES_PASSWORD=passwordforhangry
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+volumes:
+  postgres:

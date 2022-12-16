@@ -1,19 +1,43 @@
-import { User } from "@prisma/client";
+import { user } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+
 
 export interface UserRepository {
-  getUserByUsername(username: string): User;
-  getUserByEmail(email: string): User | undefined;
-  createUser(user: User): void;
+  getUserByUsername(username: string): Promise<user | null> ;
+  getUserByEmail(email: string): Promise<user | null>;
+  createUser(user: user): void;
 }
 
 export class UserRepositoryImpl implements UserRepository {
-  getUserByUsername(username: string): User {
-    throw new Error("Method not implemented.");
+  db: PrismaClient
+
+  constructor(db: PrismaClient) {
+    this.db = db
   }
-  getUserByEmail(email: string): User | undefined {
-    throw new Error("Method not implemented.");
+
+  async getUserByUsername(username: string): Promise<user | null> {
+    const data = await this.db.user.findUnique({
+      where: {
+        username : username
+      }
+    })
+
+    return data
   }
-  createUser(user: User): void {
-    throw new Error("Method not implemented.");
+
+  async getUserByEmail(email: string): Promise<user | null> {
+    const data = await this.db.user.findUnique({
+      where: {
+        email: email
+      }
+    })
+
+    return data
+  }
+
+  async createUser(user: user): Promise<void> {
+    await this.db.user.create({
+      data : user
+    })
   }
 }

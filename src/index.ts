@@ -1,20 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import express, { Request, Response } from "express";
-import createError from "http-errors";
-import { healthHandler } from "./handler/health";
+import { userRoute } from "./api/route";
 
-const prisma = new PrismaClient();
-const app = express();
-
-app.use(express.json());
-
-// TODO: Routing aplikasi akan kita tulis di sini
-app.get("/health", healthHandler);
-
-// handle 404 error
-app.use((req: Request, res: Response, next: Function) => {
-  next(createError(404));
-});
+let app = express();
+app = userRoute(app)
 
 app.listen(process.env.PORT, () =>
   console.log(

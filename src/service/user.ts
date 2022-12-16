@@ -1,24 +1,31 @@
-import { User } from "@prisma/client";
+import { user } from "@prisma/client";
 import { UserRepository } from "../repository/userRepository";
 import { ErrorType } from "../utils/errors";
+import { genSaltSync, hashSync } from "bcrypt";
 
-class UserService {
+export interface UserService{
+  register(user: user): Promise<void>
+}
+
+class UserServiceImpl {
   userRepository: UserRepository;
+  salt :number 
 
-  constructor(userRepository: UserRepository) {
+  constructor(userRepository: UserRepository, salt: number) {
     this.userRepository = userRepository;
+    this.salt = salt;
   }
 
-  register(user: User) {
+  async register(user: user): Promise<void> {
     // validate user instance
     this.validate(user);
 
     // check if username or email is exist
-    const userByEmail = this.userRepository.getUserByEmail(user.email);
+    const userByEmail = await this.userRepository.getUserByEmail(user.email);
     if (userByEmail) {
       throw ErrorType.ErrValidation("email already exist");
     }
-    const userByUsername = this.userRepository.getUserByEmail(user.username);
+    const userByUsername = await this.userRepository.getUserByEmail(user.username);
     if (userByUsername) {
       throw ErrorType.ErrValidation("username is already exist");
     }
@@ -31,10 +38,11 @@ class UserService {
   }
 
   private hashPassword(password: string): string {
-    return "";
+    const salt = genSaltSync(this.salt)
+    return hashSync(password, salt);
   }
 
-  private validate(user: User): void {
+  private validate(user: user): void {
     if (user.email === "" && user.username === "") {
       throw ErrorType.ErrValidation("email or password should not be empty");
     }

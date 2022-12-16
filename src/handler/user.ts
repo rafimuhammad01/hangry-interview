@@ -1,25 +1,32 @@
-import { user } from "@prisma/client";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { UserService } from "../service/user";
+import { ErrorType } from "../utils/errors";
 import { JSONResponse } from "./dto/response";
+import { User } from "../entity/user";
 
-class UserHandler {
-    userService : UserService
+export interface UserHandler {
+  register(req: Request, res: Response, next: NextFunction): void;
+}
+export class UserHandlerImpl implements UserHandler {
+  userService: UserService;
 
-    constructor (userService: UserService) {
-        this.userService = userService
+  constructor(userService: UserService) {
+    this.userService = userService;
+  }
+
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const reqBody: User = {
+        name: req.body?.name ?? null,
+        email: req.body?.email ?? null,
+        username: req.body?.username ?? null,
+        password: req.body?.password ?? null,
+      };
+
+      await this.userService.register(reqBody);
+      res.status(200).json({ message: "OK" } as JSONResponse);
+    } catch (e) {
+      next(e);
     }
-
-    async register(req: Request, res: Response) {
-        const reqBody: user = {
-            id:0,
-            name: req.body.name,
-            email: req.body.email,
-            username: req.body.username,
-            password: req.body.password
-        } 
-
-        this.userService.register(reqBody)
-        res.status(200).json({ message: "OK"} as JSONResponse)
-    }
+  }
 }

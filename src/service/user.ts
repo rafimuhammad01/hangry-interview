@@ -1,58 +1,46 @@
-import { user } from "@prisma/client";
-import { UserRepository } from "../repository/userRepository";
+import { UserRepository } from "../repository/user";
 import { ErrorType } from "../utils/errors";
 import { genSaltSync, hashSync } from "bcrypt";
+import { User, validate } from "../entity/user";
 
-export interface UserService{
-  register(user: user): Promise<void>
+export interface UserService {
+  register(user: User): Promise<void>;
 }
 
-class UserServiceImpl {
+export class UserServiceImpl {
   userRepository: UserRepository;
-  salt :number 
+  salt: number;
 
   constructor(userRepository: UserRepository, salt: number) {
     this.userRepository = userRepository;
     this.salt = salt;
   }
 
-  async register(user: user): Promise<void> {
+  async register(user: User): Promise<void> {
     // validate user instance
-    this.validate(user);
+    validate(user);
 
     // check if username or email is exist
+    const userByUsername = await this.userRepository.getUserByUsername(
+      user.username
+    );
+    if (userByUsername) {
+      throw ErrorType.ErrValidation("username is already exist");
+    }
     const userByEmail = await this.userRepository.getUserByEmail(user.email);
     if (userByEmail) {
       throw ErrorType.ErrValidation("email already exist");
-    }
-    const userByUsername = await this.userRepository.getUserByEmail(user.username);
-    if (userByUsername) {
-      throw ErrorType.ErrValidation("username is already exist");
     }
 
     // hash password
     user.password = this.hashPassword(user.password);
 
     // create user
-    this.userRepository.createUser(user);
+    await this.userRepository.createUser(user);
   }
 
   private hashPassword(password: string): string {
-    const salt = genSaltSync(this.salt)
+    const salt = genSaltSync(this.salt);
     return hashSync(password, salt);
-  }
-
-  private validate(user: user): void {
-    if (user.email === "" && user.username === "") {
-      throw ErrorType.ErrValidation("email or password should not be empty");
-    }
-
-    if (user.name === "") {
-      throw ErrorType.ErrValidation("name should not be emtpy");
-    }
-
-    if (user.password === "") {
-      throw ErrorType.ErrValidation("password should not be empty");
-    }
   }
 }

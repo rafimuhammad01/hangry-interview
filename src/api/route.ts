@@ -1,8 +1,9 @@
-import { Express } from "express";
+import { Express, Router } from "express";
+import { Handler } from "./server";
 
-
-export const userRoute = (app : Express):  Express => {
-    app.post("/register")
-
-    return app
-}
+export const initRouter = (app: Express, handler: Handler) => {
+  app.post("/register", (req, res, next) => {
+    handler.userHandler.register(req, res, next);
+  });
+  return app;
+};

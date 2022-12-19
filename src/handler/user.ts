@@ -5,28 +5,28 @@ import { JSONResponse } from "./dto/response";
 import { User } from "../entity/user";
 
 export interface UserHandler {
-  register(req: Request, res: Response, next: NextFunction): void;
+	register(req: Request, res: Response, next: NextFunction): void;
 }
 export class UserHandlerImpl implements UserHandler {
-  userService: UserService;
+	userService: UserService;
 
-  constructor(userService: UserService) {
-    this.userService = userService;
-  }
+	constructor(userService: UserService) {
+		this.userService = userService;
+	}
 
-  async register(req: Request, res: Response, next: NextFunction) {
-    try {
-      const reqBody: User = {
-        name: req.body?.name ?? null,
-        email: req.body?.email ?? null,
-        username: req.body?.username ?? null,
-        password: req.body?.password ?? null,
-      };
+	async register(req: Request, res: Response, next: NextFunction) {
+		try {
+			const reqBody: User = {
+				name: req.body?.name ?? null,
+				email: req.body?.email ?? null,
+				username: req.body?.username ?? null,
+				password: req.body?.password ?? null,
+			};
 
-      await this.userService.register(reqBody);
-      res.status(200).json({ message: "OK" } as JSONResponse);
-    } catch (e) {
-      next(e);
-    }
-  }
+			await this.userService.register(reqBody);
+			res.status(200).json({ message: "OK" } as JSONResponse);
+		} catch (e) {
+			next(e);
+		}
+	}
 }

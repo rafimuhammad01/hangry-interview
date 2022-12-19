@@ -1,5 +1,5 @@
-export type JSONResponse =  {
+export type JSONResponse = {
     message: string,
-    data? : any
-    error? : any
+    data?: any
+    error?: any
 }

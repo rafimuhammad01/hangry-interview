@@ -1,4 +1,3 @@
-import debug from "debug";
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import HttpStatus from "http-status-codes";
 

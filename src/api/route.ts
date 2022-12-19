@@ -6,5 +6,5 @@ export const initRouter = (app: Express, handler: Handler) => {
         handler.userHandler.register(req, res, next);
     });
 
-    return app
+    return app;
 };

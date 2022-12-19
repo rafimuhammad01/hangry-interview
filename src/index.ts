@@ -14,7 +14,7 @@ app.use(errorHandler);
 
 let PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(
-    `⚡️[server]: Server is running at https://localhost:${process.env.PORT}`
-  );
+    console.log(
+        `⚡️[server]: Server is running at https://localhost:${process.env.PORT}`
+    );
 });

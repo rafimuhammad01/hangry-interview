@@ -1,5 +1,5 @@
 export type JSONResponse = {
-    message: string,
-    data?: any
-    error?: any
-}
+    message: string;
+    data?: any;
+    error?: any;
+};

@@ -10,15 +10,19 @@ import { Env } from "../config";
 import { JWTRepository, JWTRepositoryImpl } from "../repository/jwt";
 import { AuthMiddleware } from "../middleware/auth";
 import { TodoHandler, TodoHandlerImpl } from "../handler/todo";
+import { TodoService, TodoServiceImpl } from "../service/todo";
+import { TodoRepository, TodoRepositoryImpl } from "../repository/todo";
 
 type Repository = {
     userRepository: UserRepository;
     JWTRepository: JWTRepository;
+    todoRepository: TodoRepository;
 };
 
 type Service = {
     userService: UserService;
     JWTService: JWTService;
+    todoService: TodoService;
 };
 
 export type Handler = {
@@ -65,6 +69,7 @@ export class Server {
         return {
             userRepository: new UserRepositoryImpl(this.prisma),
             JWTRepository: new JWTRepositoryImpl(this.redis),
+            todoRepository: new TodoRepositoryImpl(this.prisma),
         };
     }
 
@@ -82,13 +87,14 @@ export class Server {
                 JWTService
             ),
             JWTService: JWTService,
+            todoService: new TodoServiceImpl(this.repository.todoRepository),
         };
     }
 
     private initHandler(): Handler {
         return {
             userHandler: new UserHandlerImpl(this.service.userService),
-            todoHandler: new TodoHandlerImpl(),
+            todoHandler: new TodoHandlerImpl(this.service.todoService),
         };
     }
 }

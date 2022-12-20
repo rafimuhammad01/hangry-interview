@@ -24,5 +24,15 @@ export const initRouter = (
         }
     );
 
+    app.post(
+        "/todo",
+        (req, res, next) => {
+            middleware.authMiddleware.auth(req, res, next);
+        },
+        (req, res, next) => {
+            handler.todoHandler.Create(req, res, next);
+        }
+    );
+
     return app;
 };

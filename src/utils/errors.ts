@@ -30,6 +30,13 @@ export const errorHandler: ErrorRequestHandler = (
     res: Response,
     next: NextFunction
 ) => {
+    if (e instanceof SyntaxError) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+            message: e.name,
+            error: e.message,
+        });
+    }
+
     let err = e as ErrorType;
     if (err.type == ErrorType.ErrValidation("").type) {
         return res.status(HttpStatus.BAD_REQUEST).json({

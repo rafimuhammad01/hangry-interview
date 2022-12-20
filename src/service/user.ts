@@ -41,11 +41,15 @@ export class UserServiceImpl {
         if (userByUsername) {
             throw ErrorType.ErrValidation("username is already exist");
         }
-        const userByEmail = await this.userRepository.getUserByEmail(
-            user.email as string
-        );
-        if (userByEmail) {
-            throw ErrorType.ErrValidation("email already exist");
+
+        if (user.email) {
+            const userByEmail = await this.userRepository.getUserByEmail(
+                user.email as string
+            );
+
+            if (userByEmail) {
+                throw ErrorType.ErrValidation("email already exist");
+            }
         }
 
         // hash password

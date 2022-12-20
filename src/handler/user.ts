@@ -18,10 +18,10 @@ export class UserHandlerImpl implements UserHandler {
     async register(req: Request, res: Response, next: NextFunction) {
         try {
             const reqBody: User = {
-                name: req.body?.name ?? null,
-                email: req.body?.email ?? null,
-                username: req.body?.username ?? null,
-                password: req.body?.password ?? null,
+                name: req.body?.name,
+                email: req.body?.email,
+                username: req.body?.username,
+                password: req.body?.password,
             };
 
             await this.userService.register(reqBody);
@@ -34,9 +34,9 @@ export class UserHandlerImpl implements UserHandler {
     async login(req: Request, res: Response, next: NextFunction) {
         try {
             const reqBody: User = {
-                email: req.body?.email ?? null,
-                username: req.body?.username ?? null,
-                password: req.body?.password ?? null,
+                email: req.body?.email,
+                username: req.body?.username,
+                password: req.body?.password,
             };
 
             const token = await this.userService.login(reqBody);

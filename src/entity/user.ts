@@ -14,12 +14,12 @@ export type ValidateConfig = {
 };
 
 export const validate = (user: User, config: ValidateConfig): void => {
-    const tesFunc = (key: keyof User) => {
+    const validateFunc = (key: keyof User) => {
         if (user[key]) {
             if (!user[key]) {
                 throw ErrorType.ErrValidation(`${key} should not be empty`);
             }
         }
     };
-    Object.keys(config).forEach((key) => tesFunc(key as keyof User));
+    Object.keys(config).forEach((key) => validateFunc(key as keyof User));
 };

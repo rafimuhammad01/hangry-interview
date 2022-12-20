@@ -11,21 +11,24 @@ datasource db {
 }
 
 model user {
-  id       Int     @id @default(autoincrement())
-  email    String? @unique
-  username String  @unique
-  name     String
-  password String
-  posts    todo[]
+  id           Int     @id @default(autoincrement())
+  email        String? @unique
+  username     String  @unique
+  name         String
+  password     String
+  todoAssinged todo[]  @relation("assigned_to")
+  todoCreated  todo[]  @relation("created_by")
 }
 
 model todo {
-  id            Int      @id @default(autoincrement())
-  title         String
-  description   String
-  status        Int
-  deadline_date DateTime
-  User          user?    @relation(fields: [userId], references: [id])
-  userId        Int?
-  createdAt     DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String
+  status         Int
+  deadline_date  DateTime
+  created_by     user?    @relation("created_by", fields: [created_by_id], references: [id])
+  created_by_id  Int
+  assigned_to    user?    @relation("assigned_to", fields: [assinged_to_id], references: [id])
+  assinged_to_id Int
+  created_at     DateTime @default(now())
 }

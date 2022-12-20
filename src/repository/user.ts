@@ -25,10 +25,10 @@ export class UserRepositoryImpl implements UserRepository {
         if (data) {
             return {
                 id: data?.id,
-                name: data?.name ?? "",
-                username: data?.username ?? "",
-                email: data?.email ?? "",
-                password: data?.password ?? "",
+                name: data?.name,
+                username: data?.username,
+                email: data?.email as string,
+                password: data?.password,
             };
         }
 
@@ -45,10 +45,10 @@ export class UserRepositoryImpl implements UserRepository {
         if (data) {
             return {
                 id: data?.id,
-                name: data?.name ?? "",
-                username: data?.username ?? "",
-                email: data?.email ?? "",
-                password: data?.password ?? "",
+                name: data?.name,
+                username: data?.username,
+                email: data?.email ?? undefined,
+                password: data?.password,
             };
         }
 

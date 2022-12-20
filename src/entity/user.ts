@@ -2,23 +2,24 @@ import { ErrorType } from "../utils/errors";
 
 export type User = {
     id?: number;
-    name: string;
-    username: string;
-    email: string;
-    password: string;
+    name?: string;
+    username?: string;
+    email?: string;
+    password?: string;
     posts?: undefined;
 };
 
-export const validate = (user: User): void => {
-    if (!user.username) {
-        throw ErrorType.ErrValidation("username should not be empty");
-    }
+export type ValidateConfig = {
+    [key in keyof User]: boolean;
+};
 
-    if (!user.name) {
-        throw ErrorType.ErrValidation("name should not be emtpy");
-    }
-
-    if (!user.password) {
-        throw ErrorType.ErrValidation("password should not be empty");
-    }
+export const validate = (user: User, config: ValidateConfig): void => {
+    const tesFunc = (key: keyof User) => {
+        if (user[key]) {
+            if (!user[key]) {
+                throw ErrorType.ErrValidation(`${key} should not be empty`);
+            }
+        }
+    };
+    Object.keys(config).forEach((key) => tesFunc(key as keyof User));
 };

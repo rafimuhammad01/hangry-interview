@@ -18,6 +18,10 @@ export class ErrorType extends Error {
     static ErrNotFound(message: string): ErrorType {
         return new ErrorType("data not found", message);
     }
+
+    static ErrUnauthorized(message: string): ErrorType {
+        return new ErrorType("unauthorized", message);
+    }
 }
 
 export const errorHandler: ErrorRequestHandler = (
@@ -28,21 +32,28 @@ export const errorHandler: ErrorRequestHandler = (
 ) => {
     let err = e as ErrorType;
     if (err.type == ErrorType.ErrValidation("").type) {
-        res.status(HttpStatus.BAD_REQUEST).json({
+        return res.status(HttpStatus.BAD_REQUEST).json({
             error: err.type,
             message: err.message,
         });
     }
 
     if (err.type == ErrorType.ErrNotFound("").type) {
-        res.status(HttpStatus.NOT_FOUND).json({
+        return res.status(HttpStatus.NOT_FOUND).json({
+            error: err.type,
+            message: err.message,
+        });
+    }
+
+    if (err.type == ErrorType.ErrUnauthorized("").type) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({
             error: err.type,
             message: err.message,
         });
     }
 
     console.log(e);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         error: "internal server error",
     });
 };

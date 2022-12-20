@@ -1,10 +1,28 @@
-import { Express, Router } from "express";
-import { Handler } from "./server";
+import { Express, NextFunction, Request, Response, Router } from "express";
+import { Handler, Middleware } from "./server";
 
-export const initRouter = (app: Express, handler: Handler) => {
+export const initRouter = (
+    app: Express,
+    handler: Handler,
+    middleware: Middleware
+) => {
     app.post("/register", (req, res, next) => {
         handler.userHandler.register(req, res, next);
     });
+
+    app.post("/login", (req, res, next) => {
+        handler.userHandler.login(req, res, next);
+    });
+
+    app.get(
+        "/todo",
+        (req, res, next) => {
+            middleware.authMiddleware.auth(req, res, next);
+        },
+        (req, res, next) => {
+            handler.todoHandler.GetAll(req, res, next);
+        }
+    );
 
     return app;
 };

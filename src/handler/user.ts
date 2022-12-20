@@ -6,6 +6,7 @@ import { User } from "../entity/user";
 
 export interface UserHandler {
     register(req: Request, res: Response, next: NextFunction): void;
+    login(req: Request, res: Response, next: NextFunction): void;
 }
 export class UserHandlerImpl implements UserHandler {
     userService: UserService;
@@ -24,9 +25,28 @@ export class UserHandlerImpl implements UserHandler {
             };
 
             await this.userService.register(reqBody);
-            res.status(200).json({ message: "OK" } as JSONResponse);
+            return res.status(200).json({ message: "OK" } as JSONResponse);
         } catch (e) {
-            next(e);
+            return next(e);
+        }
+    }
+
+    async login(req: Request, res: Response, next: NextFunction) {
+        try {
+            const reqBody: User = {
+                email: req.body?.email ?? null,
+                username: req.body?.username ?? null,
+                password: req.body?.password ?? null,
+            };
+
+            const token = await this.userService.login(reqBody);
+
+            return res.status(200).json({
+                message: "OK",
+                data: token,
+            } as JSONResponse);
+        } catch (e) {
+            return next(e);
         }
     }
 }

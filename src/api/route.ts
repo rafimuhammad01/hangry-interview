@@ -34,13 +34,23 @@ export const initRouter = (
         }
     );
 
-    app.get(
+    app.patch(
         "/todo/:id",
         (req, res, next) => {
             middleware.authMiddleware.auth(req, res, next);
         },
         (req, res, next) => {
-            handler.todoHandler.GetByID(req, res, next);
+            handler.todoHandler.UpdateStatus(req, res, next);
+        }
+    );
+
+    app.delete(
+        "/todo/:id",
+        (req, res, next) => {
+            middleware.authMiddleware.auth(req, res, next);
+        },
+        (req, res, next) => {
+            handler.todoHandler.Delete(req, res, next);
         }
     );
 

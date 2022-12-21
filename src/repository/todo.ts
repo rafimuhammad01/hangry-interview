@@ -1,11 +1,12 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { Todo, ParamConfig } from "../entity/todo";
-import { ErrorType } from "../utils/errors";
 
 export interface TodoRepository {
     GetAll(config: ParamConfig): Promise<[Todo[], number]>;
     Create(todo: Todo): Promise<void>;
     GetById(id: number): Promise<Todo>;
+    Delete(id: number): Promise<void>;
+    UpdateStatus(id: number, status: number): Promise<void>;
 }
 
 export class TodoRepositoryImpl implements TodoRepository {
@@ -15,11 +16,30 @@ export class TodoRepositoryImpl implements TodoRepository {
         this.db = db;
     }
 
+    async UpdateStatus(id: number, status: number): Promise<void> {
+        await this.db.todo.update({
+            where: {
+                id: id,
+            },
+            data: {
+                status: status,
+            },
+        });
+    }
+
+    async Delete(id: number): Promise<void> {
+        await this.db.todo.delete({
+            where: {
+                id: id,
+            },
+        });
+    }
+
     async GetAll(config: ParamConfig): Promise<[Todo[], number]> {
         const offset = (config.limit as number) * ((config.page as number) - 1);
         const count = await this.db.todo.count({
             where: {
-                assinged_to_id: (config.assingedTo as number) ?? undefined,
+                assigned_to_user_id: (config.assingedTo as number) ?? undefined,
             },
         });
 
@@ -27,11 +47,12 @@ export class TodoRepositoryImpl implements TodoRepository {
             take: config.limit,
             skip: offset,
             where: {
-                assinged_to_id: (config.assingedTo as number) ?? undefined,
+                assigned_to_user_id: (config.assingedTo as number) ?? undefined,
             },
             select: {
                 id: true,
                 title: true,
+                description: true,
                 status: true,
                 deadline_date: true,
                 assigned_to: {
@@ -48,6 +69,7 @@ export class TodoRepositoryImpl implements TodoRepository {
                         name: true,
                     },
                 },
+                created_at: true,
             },
         });
 
@@ -61,8 +83,10 @@ export class TodoRepositoryImpl implements TodoRepository {
                 description: todo.title as string,
                 status: todo.status as number,
                 deadline_date: todo.deadline_date as Date,
-                created_by_id: todo.created_by?.id as number,
-                assinged_to_id: todo.assigned_to?.id as number,
+                created_by_user_id: todo.created_by?.id as number,
+                assigned_to_user_id: todo.assigned_to
+                    ? null
+                    : (todo.assigned_to.id as number),
                 created_at: todo.created_at,
             } as Prisma.todoUncheckedCreateInput,
         });
@@ -96,10 +120,6 @@ export class TodoRepositoryImpl implements TodoRepository {
                 created_at: true,
             },
         });
-
-        if (!data) {
-            throw ErrorType.ErrNotFound(`todo with id=${id} not found`);
-        }
 
         return data;
     }

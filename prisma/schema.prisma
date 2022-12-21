@@ -21,14 +21,14 @@ model user {
 }
 
 model todo {
-  id             Int      @id @default(autoincrement())
-  title          String
-  description    String
-  status         Int
-  deadline_date  DateTime
-  created_by     user?    @relation("created_by", fields: [created_by_id], references: [id])
-  created_by_id  Int
-  assigned_to    user?    @relation("assigned_to", fields: [assinged_to_id], references: [id])
-  assinged_to_id Int
-  created_at     DateTime @default(now())
+  id                  Int      @id @default(autoincrement())
+  title               String
+  description         String
+  status              Int
+  deadline_date       DateTime
+  created_by          user     @relation("created_by", fields: [created_by_user_id], references: [id])
+  created_by_user_id  Int
+  assigned_to         user?    @relation("assigned_to", fields: [assigned_to_user_id], references: [id])
+  assigned_to_user_id Int?
+  created_at          DateTime @default(now())
 }

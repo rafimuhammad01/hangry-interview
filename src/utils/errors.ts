@@ -23,6 +23,10 @@ export class ErrorType extends Error {
     static ErrUnauthorized(message: string): ErrorType {
         return new ErrorType("unauthorized", message);
     }
+
+    static ErrForbidden(message: string): ErrorType {
+        return new ErrorType("forbidden", message);
+    }
 }
 
 export const errorHandler: ErrorRequestHandler = (
@@ -62,6 +66,13 @@ export const errorHandler: ErrorRequestHandler = (
 
     if (err.type == ErrorType.ErrUnauthorized("").type) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
+            error: err.type,
+            message: err.message,
+        });
+    }
+
+    if (err.type == ErrorType.ErrForbidden("").type) {
+        return res.status(HttpStatus.FORBIDDEN).json({
             error: err.type,
             message: err.message,
         });

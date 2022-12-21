@@ -1,13 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import { Todo } from "../entity/todo";
-import { TodoService } from "../service/todo";
+import { STATUS_DONE, STATUS_TODO, TodoService } from "../service/todo";
 import { JSONResponse } from "./dto/response";
 import { parse, isValid } from "date-fns";
+import { ErrorType } from "../utils/errors";
 
 export interface TodoHandler {
     GetAll(req: Request, res: Response, next: NextFunction): void;
     Create(req: Request, res: Response, next: NextFunction): void;
-    GetByID(req: Request, res: Response, next: NextFunction): void;
+    // GetByID(req: Request, res: Response, next: NextFunction): void;
+    UpdateStatus(req: Request, res: Response, next: NextFunction): void;
+    Delete(req: Request, res: Response, next: NextFunction): void;
 }
 
 export class TodoHandlerImpl implements TodoHandler {
@@ -17,19 +20,19 @@ export class TodoHandlerImpl implements TodoHandler {
         this.todoService = todoService;
     }
 
-    async GetByID(req: Request, res: Response, next: NextFunction) {
-        try {
-            const data = await this.todoService.GetByID(
-                parseInt(req.params.id as string)
-            );
-            return res.json({
-                message: "OK",
-                data: data,
-            } as JSONResponse);
-        } catch (e) {
-            return next(e);
-        }
-    }
+    // async GetByID(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         const data = await this.todoService.GetByID(
+    //             parseInt(req.params.id as string)
+    //         );
+    //         return res.json({
+    //             message: "OK",
+    //             data: data,
+    //         } as JSONResponse);
+    //     } catch (e) {
+    //         return next(e);
+    //     }
+    // }
 
     async GetAll(req: Request, res: Response, next: NextFunction) {
         try {
@@ -47,10 +50,27 @@ export class TodoHandlerImpl implements TodoHandler {
                 url: url,
             });
 
+            const cleanResp: any = [];
+            resp.forEach((val) => {
+                let status: string = undefined;
+                if (val.status === STATUS_DONE) {
+                    status = "done";
+                }
+
+                if (val.status === STATUS_TODO) {
+                    status = "todo";
+                }
+
+                cleanResp.push({
+                    ...val,
+                    status: status,
+                });
+            });
+
             return res.json({
                 message: "OK",
                 data: {
-                    todo: resp,
+                    todo: cleanResp,
                     pagination: paginate,
                 },
             } as JSONResponse);
@@ -61,19 +81,26 @@ export class TodoHandlerImpl implements TodoHandler {
 
     async Create(req: Request, res: Response, next: NextFunction) {
         try {
-            let deadlineDateFormat = parse(
-                req.body.deadline_date,
-                "yyyy-MM-dd HH:mm:ss",
-                new Date()
-            );
+            let deadlineDateFormatGMT7 = undefined;
+            if (req.body.deadline_date) {
+                let deadlineDateFormat = parse(
+                    req.body.deadline_date,
+                    "yyyy-MM-dd HH:mm:ss",
+                    new Date()
+                );
 
-            const deadlineDateFormatGMT7 = new Date(
-                deadlineDateFormat.setHours(deadlineDateFormat.getHours() + 7)
-            );
+                deadlineDateFormatGMT7 = new Date(
+                    deadlineDateFormat.setHours(
+                        deadlineDateFormat.getHours() + 7
+                    )
+                );
 
-            const isValidDate = isValid(deadlineDateFormat);
-            if (!isValidDate) {
-                deadlineDateFormat = undefined;
+                const isValidDate = isValid(deadlineDateFormatGMT7);
+                if (!isValidDate) {
+                    throw ErrorType.ErrValidation(
+                        "date format should be yyyy-mm-dd hh:mm:ss"
+                    );
+                }
             }
 
             const todo: Todo = {
@@ -87,11 +114,49 @@ export class TodoHandlerImpl implements TodoHandler {
             };
 
             await this.todoService.Create(todo);
+
             return res.json({
                 message: "OK",
             } as JSONResponse);
         } catch (e) {
             next(e);
         }
+    }
+
+    async UpdateStatus(req: Request, res: Response, next: NextFunction) {
+        try {
+            let status = undefined;
+            if (req.body.status === "todo") {
+                status = STATUS_TODO;
+            }
+
+            if (req.body.status === "done") {
+                status = STATUS_DONE;
+            }
+
+            await this.todoService.UpdateStatus(
+                parseInt(req.params.id as string),
+                status,
+                req.user
+            );
+            return res.json({
+                message: "OK",
+            } as JSONResponse);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async Delete(req: Request, res: Response, next: NextFunction) {
+        try {
+            await this.todoService.Delete(
+                parseInt(req.params.id as string),
+                req.user
+            );
+
+            return res.json({
+                message: "OK",
+            } as JSONResponse);
+        } catch (e) {}
     }
 }

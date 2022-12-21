@@ -1,19 +1,21 @@
 import { Todo, ParamConfig, validate } from "../entity/todo";
+import { User } from "../entity/user";
 import { TodoRepository } from "../repository/todo";
+import { ErrorType } from "../utils/errors";
 import { pagination, Pagination } from "../utils/pagintation";
 
 const DEFAULT_LIMIT = 10;
 const DEFAULT_PAGE = 1;
 
-const STATUS_TODO = 0;
-const STATUS_DONE = 1;
+export const STATUS_TODO = 0;
+export const STATUS_DONE = 1;
 
 export interface TodoService {
     GetAll(config: ParamConfig): Promise<[Todo[], Pagination]>;
-    GetByID(id: number): Promise<Todo>;
+    // GetByID(id: number): Promise<Todo>;
     Create(todo: Todo): Promise<void>;
-    Update(todo: Todo): null;
-    Delete(todo: Todo): null;
+    UpdateStatus(id: number, status: number, user: User): Promise<void>;
+    Delete(id: number, user: User): Promise<void>;
 }
 
 export class TodoServiceImpl implements TodoService {
@@ -21,6 +23,25 @@ export class TodoServiceImpl implements TodoService {
 
     constructor(repository: TodoRepository) {
         this.repository = repository;
+    }
+
+    async UpdateStatus(id: number, status: number, user: User): Promise<void> {
+        if (status != STATUS_DONE && status != STATUS_TODO) {
+            throw ErrorType.ErrValidation(
+                "status is reqired and should be to do or done"
+            );
+        }
+
+        const data = await this.repository.GetById(id);
+        if (!data) {
+            throw ErrorType.ErrNotFound(`todo with id=${id} not found`);
+        }
+
+        if (data.created_by.id != user.id) {
+            throw ErrorType.ErrForbidden("you are forbidden to do this action");
+        }
+
+        await this.repository.UpdateStatus(id, status);
     }
 
     async GetAll(config: ParamConfig): Promise<[Todo[], Pagination]> {
@@ -44,16 +65,19 @@ export class TodoServiceImpl implements TodoService {
         return [data, paginationData];
     }
 
-    async GetByID(id: number): Promise<Todo> {
-        return this.repository.GetById(id);
-    }
+    // async GetByID(id: number): Promise<Todo> {
+    //     const data = await this.repository.GetById(id);
+    //     if (!data) {
+    //         throw ErrorType.ErrNotFound(`todo with id=${id} not found`);
+    //     }
+    //     return data;
+    // }
 
-    Create(todo: Todo): Promise<void> {
+    async Create(todo: Todo): Promise<void> {
         validate(todo, {
             title: true,
             description: true,
             deadline_date: true,
-            assigned_to: true,
         });
 
         const dateNowUTC = new Date();
@@ -67,11 +91,16 @@ export class TodoServiceImpl implements TodoService {
         return this.repository.Create(todo);
     }
 
-    Update(todo: Todo): null {
-        throw new Error("Method not implemented.");
-    }
+    async Delete(id: number, user: User): Promise<void> {
+        const data = await this.repository.GetById(id);
+        if (!data) {
+            throw ErrorType.ErrNotFound(`todo with id=${id} not found`);
+        }
 
-    Delete(todo: Todo): null {
-        throw new Error("Method not implemented.");
+        if (data.created_by.id != user.id) {
+            throw ErrorType.ErrForbidden("you are forbidden to do this action");
+        }
+
+        await this.repository.Delete(id);
     }
 }

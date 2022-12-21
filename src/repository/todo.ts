@@ -17,7 +17,7 @@ export class TodoRepositoryImpl implements TodoRepository {
         const offset = (config.limit as number) * ((config.page as number) - 1);
         const count = await this.db.todo.count({
             where: {
-                assinged_to_id: (config.assingedTo as number) ?? null,
+                assinged_to_id: (config.assingedTo as number) ?? undefined,
             },
         });
 
@@ -25,7 +25,7 @@ export class TodoRepositoryImpl implements TodoRepository {
             take: config.limit,
             skip: offset,
             where: {
-                assinged_to_id: (config.assingedTo as number) ?? null,
+                assinged_to_id: (config.assingedTo as number) ?? undefined,
             },
             select: {
                 id: true,

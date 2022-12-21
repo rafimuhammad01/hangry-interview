@@ -14,6 +14,10 @@ export const initRouter = (
         handler.userHandler.login(req, res, next);
     });
 
+    app.post("/refresh-token", (req, res, next) => {
+        handler.userHandler.refreshToken(req, res, next);
+    });
+
     app.get(
         "/todo",
         (req, res, next) => {

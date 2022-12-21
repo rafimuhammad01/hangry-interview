@@ -8,6 +8,7 @@ import { Token } from "../entity/jwt";
 export interface UserService {
     register(user: User): Promise<void>;
     login(user: User): Promise<Token | null>;
+    refreshToken(token: string): Promise<Token>;
 }
 
 export class UserServiceImpl {
@@ -23,6 +24,10 @@ export class UserServiceImpl {
         this.userRepository = userRepository;
         this.saltSync = genSaltSync(salt);
         this.JWTService = JWTService;
+    }
+
+    async refreshToken(token: string): Promise<Token> {
+        return this.JWTService.RefreshToken(token);
     }
 
     async register(user: User): Promise<void> {

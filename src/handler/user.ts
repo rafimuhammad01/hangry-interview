@@ -3,16 +3,32 @@ import { UserService } from "../service/user";
 import { ErrorType } from "../utils/errors";
 import { JSONResponse } from "./dto/response";
 import { User } from "../entity/user";
+import { ParamsDictionary } from "express-serve-static-core";
+import { ParsedQs } from "qs";
 
 export interface UserHandler {
     register(req: Request, res: Response, next: NextFunction): void;
     login(req: Request, res: Response, next: NextFunction): void;
+    refreshToken(req: Request, res: Response, next: NextFunction): void;
 }
 export class UserHandlerImpl implements UserHandler {
     userService: UserService;
 
     constructor(userService: UserService) {
         this.userService = userService;
+    }
+
+    async refreshToken(req: Request, res: Response, next: NextFunction) {
+        try {
+            const accessToken = req.body.access_token;
+            const newToken = await this.userService.refreshToken(accessToken);
+            return res.status(200).json({
+                message: "OK",
+                data: newToken,
+            } as JSONResponse);
+        } catch (e) {
+            next(e);
+        }
     }
 
     async register(req: Request, res: Response, next: NextFunction) {

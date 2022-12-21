@@ -4,6 +4,7 @@ import { RedisClientInternal } from "../database/redis/index";
 
 export interface JWTRepository {
     CacheToken(refreshToken: string, payload: JwtPayload, exp: number): void;
+    GetToken(refreshToken: string): Promise<JwtPayload>;
 }
 
 export class JWTRepositoryImpl implements JWTRepository {
@@ -11,6 +12,11 @@ export class JWTRepositoryImpl implements JWTRepository {
 
     constructor(redisClient: Promise<RedisClientInternal>) {
         this.redis = redisClient;
+    }
+
+    async GetToken(refreshToken: string): Promise<JwtPayload> {
+        const payload = await (await this.redis).get(refreshToken);
+        return JSON.parse(payload) as JwtPayload;
     }
 
     async CacheToken(

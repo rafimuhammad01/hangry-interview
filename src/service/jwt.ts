@@ -7,6 +7,7 @@ import { ErrorType } from "../utils/errors";
 export interface JWTService {
     GenerateToken(payload: JWTPayload): Promise<Token>;
     VerifyJWT(token: string): JWTPayload | null;
+    RefreshToken(refreshToken: string): Promise<Token>;
 }
 
 export class JWTServiceImpl implements JWTService {
@@ -25,6 +26,22 @@ export class JWTServiceImpl implements JWTService {
             (this.accessTokenExpiry = accessTokenExpiry),
             (this.refreshTokenExpiry = refreshToken),
             (this.repository = jwtRepo);
+    }
+
+    async RefreshToken(refreshToken: string): Promise<Token> {
+        const payload = await this.repository.GetToken(refreshToken);
+        if (payload == null) {
+            throw ErrorType.ErrNotFound("refresh token is invalid or expired");
+        }
+
+        const accesToken = jwt.sign(payload, this.secretKey, {
+            expiresIn: this.accessTokenExpiry,
+        });
+
+        return {
+            accessToken: accesToken,
+            refreshToken: refreshToken,
+        };
     }
 
     async GenerateToken(payload: JWTPayload): Promise<Token> {

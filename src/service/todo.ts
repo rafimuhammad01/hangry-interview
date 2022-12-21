@@ -1,5 +1,6 @@
 import { Todo, ParamConfig, validate } from "../entity/todo";
 import { TodoRepository } from "../repository/todo";
+import { pagination, Pagination } from "../utils/pagintation";
 
 const DEFAULT_LIMIT = 10;
 const DEFAULT_PAGE = 1;
@@ -8,8 +9,8 @@ const STATUS_TODO = 0;
 const STATUS_DONE = 1;
 
 export interface TodoService {
-    GetAll(config: ParamConfig): Todo[];
-    GetByID(id: number): Todo;
+    GetAll(config: ParamConfig): Promise<[Todo[], Pagination]>;
+    GetByID(id: number): Promise<Todo>;
     Create(todo: Todo): Promise<void>;
     Update(todo: Todo): null;
     Delete(todo: Todo): null;
@@ -22,7 +23,7 @@ export class TodoServiceImpl implements TodoService {
         this.repository = repository;
     }
 
-    GetAll(config: ParamConfig): Todo[] {
+    async GetAll(config: ParamConfig): Promise<[Todo[], Pagination]> {
         if (!config.limit) {
             config.limit = DEFAULT_LIMIT;
         }
@@ -31,11 +32,20 @@ export class TodoServiceImpl implements TodoService {
             config.page = DEFAULT_PAGE;
         }
 
-        return this.repository.GetAll(config);
+        const [data, count] = await this.repository.GetAll(config);
+        const paginationData = pagination(
+            config.limit,
+            config.page,
+            count,
+            config.url,
+            config.assingedTo ? `assinged_to=${config.assingedTo}` : undefined
+        );
+
+        return [data, paginationData];
     }
 
-    GetByID(id: number): Todo {
-        throw new Error("Method not implemented.");
+    async GetByID(id: number): Promise<Todo> {
+        return;
     }
 
     Create(todo: Todo): Promise<void> {
@@ -46,8 +56,13 @@ export class TodoServiceImpl implements TodoService {
             assigned_to: true,
         });
 
+        const dateNowUTC = new Date();
+        const dateNowGMT7 = new Date(
+            dateNowUTC.setHours(dateNowUTC.getHours() + 7)
+        );
+
         todo.status = STATUS_TODO;
-        todo.created_at = new Date();
+        todo.created_at = dateNowGMT7;
 
         return this.repository.Create(todo);
     }

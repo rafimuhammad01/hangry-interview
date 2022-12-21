@@ -2,8 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Todo } from "../entity/todo";
 import { TodoService } from "../service/todo";
 import { JSONResponse } from "./dto/response";
-import { format, parse, isValid } from "date-fns";
-import { id } from "date-fns/locale";
+import { parse, isValid } from "date-fns";
 
 export interface TodoHandler {
     GetAll(req: Request, res: Response, next: NextFunction): void;
@@ -18,9 +17,31 @@ export class TodoHandlerImpl implements TodoHandler {
     }
 
     async GetAll(req: Request, res: Response, next: NextFunction) {
-        res.json({
-            user: req.user,
-        });
+        try {
+            const assinged_to_id = req.query.assigned_to as string;
+            const limit = req.query.limit as string;
+            const page = req.query.page as string;
+            const url = req.url.split("?")[0];
+
+            const [resp, paginate] = await this.todoService.GetAll({
+                limit: limit ? parseInt(limit) : undefined,
+                page: page ? parseInt(page) : undefined,
+                assingedTo: assinged_to_id
+                    ? parseInt(assinged_to_id)
+                    : undefined,
+                url: url,
+            });
+
+            return res.json({
+                message: "OK",
+                data: {
+                    todo: resp,
+                    pagination: paginate,
+                },
+            } as JSONResponse);
+        } catch (e) {
+            next(e);
+        }
     }
 
     async Create(req: Request, res: Response, next: NextFunction) {
@@ -29,7 +50,11 @@ export class TodoHandlerImpl implements TodoHandler {
                 req.body.deadline_date,
                 "yyyy-MM-dd HH:mm:ss",
                 new Date()
-            ) as Date | undefined;
+            );
+
+            const deadlineDateFormatGMT7 = new Date(
+                deadlineDateFormat.setHours(deadlineDateFormat.getHours() + 7)
+            );
 
             const isValidDate = isValid(deadlineDateFormat);
             if (!isValidDate) {
@@ -39,7 +64,7 @@ export class TodoHandlerImpl implements TodoHandler {
             const todo: Todo = {
                 title: req.body.title,
                 description: req.body.description,
-                deadline_date: deadlineDateFormat,
+                deadline_date: deadlineDateFormatGMT7,
                 assigned_to: {
                     id: req.body.assigned_to?.id,
                 },

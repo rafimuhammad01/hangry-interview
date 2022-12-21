@@ -5,6 +5,7 @@ export type ParamConfig = {
     limit?: number;
     page?: number;
     assingedTo?: number;
+    url?: string;
 };
 
 export type Todo = {

@@ -34,13 +34,10 @@ export class AuthMiddleware {
 
             const token = authHeaderSplit[1];
             const payload = this.jwtService.VerifyJWT(token);
-            if (payload == null) {
-                throw ErrorType.ErrUnauthorized("token is invalid or expired");
-            }
 
             req.user = {
-                id: payload.id,
-                username: payload.username,
+                id: payload?.id,
+                username: payload?.username,
             } as User;
 
             return next();

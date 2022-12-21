@@ -5,6 +5,8 @@
     "strict": true,
     "lib": ["esnext"],
     "esModuleInterop": true,
-    "strictNullChecks" : false
+    "strictNullChecks" : false,
+    "target": "es2016",
+    "module": "commonjs"
   },
 }

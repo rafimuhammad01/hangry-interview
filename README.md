@@ -23,18 +23,18 @@ For the documentation of the API you can look through [here](https://documenter.
 
 To run this app you can follow this step:
 
-1. via docker
+1. up the databases needed for this application
 
     1. run database services with this command:
         ```
-        docker compose up
+        docker compose up -d
         ```
         or
         ```
-        docker-compose up
+        docker-compose up -d
         ```
 
-2. if you don't have docker installed on your local machine, you can download the postgresl and redis then set the credential on .env to match with your databases credential
+2. if you don't have docker installed on your local machine, you can download the `postgresql` and `redis` then set the credential on .env to match with your databases credential
 
 3. Download depedencies
     ```

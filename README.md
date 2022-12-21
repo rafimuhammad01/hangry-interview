@@ -21,40 +21,31 @@ For the documentation of the API you can look through [here](https://documenter.
 
 ### Run program
 
-#### **With Docker**
+To run this app you can follow this step:
 
-If you have docker on your local computer it is recommended to use docker.
+1. via docker
 
-1. Up all services with docker
-    ```
-    docker compose up -d
-    ```
-2. By default the program will be run on port 8081, and you can access it with http://localhost:8081
+    1. run database services with this command:
+        ```
+        docker compose up
+        ```
+        or
+        ```
+        docker-compose up
+        ```
 
-####
+2. if you don't have docker installed on your local machine, you can download the postgresl and redis then set the credential on .env to match with your databases credential
 
-**Without Docker**
-
-If you want to do it manually, you can follow this step:
-
-1. Download `postgresql` on local
-2. Download `redis` on local
 3. Download depedencies
     ```
     npm install
     ```
-4. Run
+4. Run migration first with this command
+    ```
+    npx prisma db push
+    ```
+5. Run
     ```
     npm run dev
     ```
-5. By default the program will be run on port 8081, and you can access it with http://localhost:8081
-
-## Before you try the API, you need to do migrations first
-
-You should do the migration first with this command
-
-```
-npx prisma db push
-```
-
-note: if you run with docker, you must go inside the app container to run this command. If you run with local you must edit the `DATABASE_URL` in .env to match your database credential
+6. By default the program will be run on port 8081, and you can access it with http://localhost:8081

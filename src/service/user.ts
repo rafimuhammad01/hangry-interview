@@ -92,7 +92,7 @@ export class UserServiceImpl {
             );
         }
 
-        if (user == null) {
+        if (userData == null) {
             throw ErrorType.ErrValidation("incorrect username/password");
         }
 

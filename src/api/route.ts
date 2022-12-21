@@ -6,6 +6,12 @@ export const initRouter = (
     handler: Handler,
     middleware: Middleware
 ) => {
+    app.post("/", (req, res, next) => {
+        res.json({
+            message: "OK",
+        });
+    });
+
     app.post("/register", (req, res, next) => {
         handler.userHandler.register(req, res, next);
     });

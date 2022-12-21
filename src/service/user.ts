@@ -86,14 +86,16 @@ export class UserServiceImpl {
         let userData = {} as User | null;
         if (user.email) {
             userData = await this.userRepository.getUserByEmail(user.email);
+            if (userData == null) {
+                throw ErrorType.ErrValidation("incorrect email/password");
+            }
         } else if (user.username) {
             userData = await this.userRepository.getUserByUsername(
                 user.username
             );
-        }
-
-        if (userData == null) {
-            throw ErrorType.ErrValidation("incorrect username/password");
+            if (userData == null) {
+                throw ErrorType.ErrValidation("incorrect username/password");
+            }
         }
 
         // matched password

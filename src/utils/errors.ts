@@ -1,6 +1,6 @@
 import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import HttpStatus from "http-status-codes";
-import { TokenExpiredError } from "jsonwebtoken";
+import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 
 export class ErrorType extends Error {
     type: string;
@@ -45,6 +45,13 @@ export const errorHandler: ErrorRequestHandler = (
     if (e instanceof TokenExpiredError) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
             message: "unauthrized",
+            error: "token is invalid or expired",
+        });
+    }
+
+    if (e instanceof JsonWebTokenError) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({
+            message: "unautorized",
             error: "token is invalid or expired",
         });
     }

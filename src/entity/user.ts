@@ -15,7 +15,7 @@ export type ValidateConfig = {
 
 export const validate = (user: User, config: ValidateConfig): void => {
     const validateFunc = (key: keyof User) => {
-        if (user[key]) {
+        if (config[key]) {
             if (!user[key]) {
                 throw ErrorType.ErrValidation(`${key} should not be empty`);
             }

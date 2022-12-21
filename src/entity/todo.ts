@@ -24,7 +24,6 @@ export type ValidateConfig = {
 };
 
 export const validate = (todo: Todo, config: ValidateConfig): void => {
-    console.log(todo);
     const validateFunc = (key: keyof Todo) => {
         if (config[key]) {
             if (!todo[key]) {

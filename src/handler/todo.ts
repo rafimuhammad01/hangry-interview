@@ -8,7 +8,6 @@ import { ErrorType } from "../utils/errors";
 export interface TodoHandler {
     GetAll(req: Request, res: Response, next: NextFunction): void;
     Create(req: Request, res: Response, next: NextFunction): void;
-    // GetByID(req: Request, res: Response, next: NextFunction): void;
     UpdateStatus(req: Request, res: Response, next: NextFunction): void;
     Delete(req: Request, res: Response, next: NextFunction): void;
 }
@@ -19,20 +18,6 @@ export class TodoHandlerImpl implements TodoHandler {
     constructor(todoService: TodoService) {
         this.todoService = todoService;
     }
-
-    // async GetByID(req: Request, res: Response, next: NextFunction) {
-    //     try {
-    //         const data = await this.todoService.GetByID(
-    //             parseInt(req.params.id as string)
-    //         );
-    //         return res.json({
-    //             message: "OK",
-    //             data: data,
-    //         } as JSONResponse);
-    //     } catch (e) {
-    //         return next(e);
-    //     }
-    // }
 
     async GetAll(req: Request, res: Response, next: NextFunction) {
         try {
@@ -157,6 +142,8 @@ export class TodoHandlerImpl implements TodoHandler {
             return res.json({
                 message: "OK",
             } as JSONResponse);
-        } catch (e) {}
+        } catch (e) {
+            return next(e);
+        }
     }
 }

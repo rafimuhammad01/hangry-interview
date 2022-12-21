@@ -12,7 +12,6 @@ export const STATUS_DONE = 1;
 
 export interface TodoService {
     GetAll(config: ParamConfig): Promise<[Todo[], Pagination]>;
-    // GetByID(id: number): Promise<Todo>;
     Create(todo: Todo): Promise<void>;
     UpdateStatus(id: number, status: number, user: User): Promise<void>;
     Delete(id: number, user: User): Promise<void>;
@@ -59,19 +58,11 @@ export class TodoServiceImpl implements TodoService {
             config.page,
             count,
             config.url,
-            config.assingedTo ? `assinged_to=${config.assingedTo}` : undefined
+            config.assingedTo ? `assigned_to=${config.assingedTo}` : undefined
         );
 
         return [data, paginationData];
     }
-
-    // async GetByID(id: number): Promise<Todo> {
-    //     const data = await this.repository.GetById(id);
-    //     if (!data) {
-    //         throw ErrorType.ErrNotFound(`todo with id=${id} not found`);
-    //     }
-    //     return data;
-    // }
 
     async Create(todo: Todo): Promise<void> {
         validate(todo, {

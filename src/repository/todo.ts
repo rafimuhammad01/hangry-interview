@@ -85,8 +85,8 @@ export class TodoRepositoryImpl implements TodoRepository {
                 deadline_date: todo.deadline_date as Date,
                 created_by_user_id: todo.created_by?.id as number,
                 assigned_to_user_id: todo.assigned_to
-                    ? null
-                    : (todo.assigned_to.id as number),
+                    ? (todo.assigned_to.id as number)
+                    : null,
                 created_at: todo.created_at,
             } as Prisma.todoUncheckedCreateInput,
         });

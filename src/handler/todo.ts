@@ -7,6 +7,7 @@ import { parse, isValid } from "date-fns";
 export interface TodoHandler {
     GetAll(req: Request, res: Response, next: NextFunction): void;
     Create(req: Request, res: Response, next: NextFunction): void;
+    GetByID(req: Request, res: Response, next: NextFunction): void;
 }
 
 export class TodoHandlerImpl implements TodoHandler {
@@ -14,6 +15,20 @@ export class TodoHandlerImpl implements TodoHandler {
 
     constructor(todoService: TodoService) {
         this.todoService = todoService;
+    }
+
+    async GetByID(req: Request, res: Response, next: NextFunction) {
+        try {
+            const data = await this.todoService.GetByID(
+                parseInt(req.params.id as string)
+            );
+            return res.json({
+                message: "OK",
+                data: data,
+            } as JSONResponse);
+        } catch (e) {
+            return next(e);
+        }
     }
 
     async GetAll(req: Request, res: Response, next: NextFunction) {
@@ -40,7 +55,7 @@ export class TodoHandlerImpl implements TodoHandler {
                 },
             } as JSONResponse);
         } catch (e) {
-            next(e);
+            return next(e);
         }
     }
 
@@ -72,7 +87,7 @@ export class TodoHandlerImpl implements TodoHandler {
             };
 
             await this.todoService.Create(todo);
-            res.json({
+            return res.json({
                 message: "OK",
             } as JSONResponse);
         } catch (e) {

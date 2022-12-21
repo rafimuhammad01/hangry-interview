@@ -34,5 +34,15 @@ export const initRouter = (
         }
     );
 
+    app.get(
+        "/todo/:id",
+        (req, res, next) => {
+            middleware.authMiddleware.auth(req, res, next);
+        },
+        (req, res, next) => {
+            handler.todoHandler.GetByID(req, res, next);
+        }
+    );
+
     return app;
 };

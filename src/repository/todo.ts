@@ -1,9 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { Todo, ParamConfig } from "../entity/todo";
+import { ErrorType } from "../utils/errors";
 
 export interface TodoRepository {
     GetAll(config: ParamConfig): Promise<[Todo[], number]>;
     Create(todo: Todo): Promise<void>;
+    GetById(id: number): Promise<Todo>;
 }
 
 export class TodoRepositoryImpl implements TodoRepository {
@@ -64,5 +66,41 @@ export class TodoRepositoryImpl implements TodoRepository {
                 created_at: todo.created_at,
             } as Prisma.todoUncheckedCreateInput,
         });
+    }
+
+    async GetById(id: number): Promise<Todo> {
+        const data = await this.db.todo.findUnique({
+            where: {
+                id: id,
+            },
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                status: true,
+                deadline_date: true,
+                assigned_to: {
+                    select: {
+                        id: true,
+                        username: true,
+                        name: true,
+                    },
+                },
+                created_by: {
+                    select: {
+                        id: true,
+                        username: true,
+                        name: true,
+                    },
+                },
+                created_at: true,
+            },
+        });
+
+        if (!data) {
+            throw ErrorType.ErrNotFound(`todo with id=${id} not found`);
+        }
+
+        return data;
     }
 }

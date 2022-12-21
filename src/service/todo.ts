@@ -45,7 +45,7 @@ export class TodoServiceImpl implements TodoService {
     }
 
     async GetByID(id: number): Promise<Todo> {
-        return;
+        return this.repository.GetById(id);
     }
 
     Create(todo: Todo): Promise<void> {
